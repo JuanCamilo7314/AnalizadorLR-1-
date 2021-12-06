@@ -2,9 +2,12 @@ package control;
 
 import entidades.Gramatica;
 import entidades.ArreglarGramatica;
+import entidades.ExtenderGramatica;
+import entidades.GenerarAutomata;
+import entidades.RutaArchivo;
 import java.io.File;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+
 
 /**
  * clase encargada de ejecutar todos las acciones del programa.
@@ -16,11 +19,17 @@ public class ControlSistema {
 
     private Gramatica gramatica;
     private ArreglarGramatica gramaticaArreglada;
+    private RutaArchivo rutaArchivo;
+    private ExtenderGramatica extenderGramatica;
+    private GenerarAutomata generarAutomara;
    
 
     public ControlSistema() {
         this.gramatica = new Gramatica();
         this.gramaticaArreglada = new ArreglarGramatica();
+        this.rutaArchivo = new RutaArchivo();
+        this.extenderGramatica = new ExtenderGramatica();
+        this.generarAutomara = new GenerarAutomata();
     }
 
     /**
@@ -32,6 +41,20 @@ public class ControlSistema {
      */
     public JSONArray mostrarGramatica(File archivo) throws ControlException {
         return this.gramatica.cargarArchivo(archivo);
+    }
+    
+    public File buscarArchivo(){
+        File archivo = this.rutaArchivo.buscarArchivo();
+        return archivo;
+    }
+    
+    public JSONArray leerGramatica(JSONArray gramatica){
+        
+        return extenderGramatica.extender(gramatica);
+    }
+    
+    public JSONArray generarx(JSONArray gramatica){
+        return generarAutomara.obtenerAutomata(gramatica);
     }
 
     /**
