@@ -1,7 +1,7 @@
 {
     "gramatica":[
         {"noTerminal": "E","producciones":"E+n"},
-        {"noTerminal": "E'","producciones":"n"}
+        {"noTerminal": "E","producciones":"n"}
     ]
     
 }
