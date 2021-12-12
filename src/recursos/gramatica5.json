@@ -1,0 +1,16 @@
+{
+    "gramatica":[
+        {"noTerminal": "S","producciones":"L=R"},
+        {"noTerminal": "S","producciones":"R"},
+        {"noTerminal": "L","producciones":"*R"},
+        {"noTerminal": "L","producciones":"i"},
+        {"noTerminal": "R","producciones":"a"}
+        
+    ]
+    
+}
+
+
+
+
+

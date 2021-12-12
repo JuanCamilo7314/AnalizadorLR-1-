@@ -1,0 +1,7 @@
+{
+    "gramatica":[
+        {"noTerminal": "S","producciones":"C"},
+        {"noTerminal": "C","producciones":"aD"},
+        {"noTerminal": "D","producciones":"d"}
+    ]
+}

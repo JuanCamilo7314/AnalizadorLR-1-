@@ -7,129 +7,280 @@ import org.json.simple.JSONObject;
  *
  * @author Juan Camilo Uni Lara
  */
-public class GenerarAutomata
-{
+public class GenerarAutomata {
 
     String primeros = "";
     JSONArray solucion = new JSONArray();
-    JSONObject jsonEstados = new JSONObject();
-    JSONArray gramaticaEstado = new JSONArray();
+    JSONArray solucionAuxiliar = new JSONArray();
 
     int estado = 0;
 
-    public JSONArray obtenerAutomata(JSONArray gramatica)
-    {
+    public JSONArray obtenerAutomata(JSONArray gramatica) {
 
-        JSONObject jsonObject1 = (JSONObject) gramatica.get(0);
-        System.out.println(jsonObject1);
-        if (this.solucion.size() == 0)
-        {
-            JSONObject variablesEstado = new JSONObject();
-            jsonEstados.put("estado", estado);
+        JSONObject jsonObject1 = (JSONObject) gramatica.get(estado);
+        solucion.add(generarLineaSolucion(estado, jsonObject1.get("noTerminal") + "",
+                jsonObject1.get("producciones") + "", "$",
+                (jsonObject1.get("producciones") + "").charAt((jsonObject1.get("producciones") + "").indexOf(".") + 1) + ""));
 
-            variablesEstado.put("noTerminal",
-                    jsonObject1.get("noTerminal"));
-            variablesEstado.put("producciones",
-                    jsonObject1.get("producciones"));
-            variablesEstado.put("primeros", "$");
-            gramaticaEstado.add(variablesEstado);
-            jsonEstados.put("gramaticaEstado", gramaticaEstado);
-            solucion.add(jsonEstados);
-        }
-        for (int i = 0; i < solucion.size(); i++)
-        {
-            JSONObject jsonObject2 = (JSONObject) solucion.get(0);
-            JSONArray jsonObject3 = (JSONArray) jsonObject2.get("gramaticaEstado");
-            for (int j = 0; j < jsonObject3.size(); j++)
-            {
-                JSONObject jsonObject4 = (JSONObject) jsonObject3.get(0);
-                String producciones = jsonObject4.get("producciones") + "";
-                int posicionPunto = producciones.indexOf(".");
-                if (Character.isUpperCase(producciones.charAt(posicionPunto + 1)))
-                {
-                    generarEstados(gramatica, producciones.charAt(posicionPunto + 1) + "",
-                            jsonObject4.get("noTerminal") + "");
-                }
+        for (int i = 0; i < solucion.size(); i++) {
+            JSONObject jsonObject2 = (JSONObject) solucion.get(i);
+            if (!(jsonObject2.get("transicion") + "").equals(jsonObject2.get("noTerminal") + "")) {
+                generarEstados(gramatica, jsonObject2.get("transicion") + "", jsonObject2.get("noTerminal") + "");
             }
         }
+        crearEstado(gramatica);
+        System.out.println(solucion);
         return solucion;
     }
 
-    public void generarEstados(JSONArray gramatica, String letra, String inicial)
-    {
-
-        for (int i = 0; i < gramatica.size(); i++)
-        {
-            JSONObject jsonObject1 = (JSONObject) gramatica.get(i);
-            System.out.println(jsonObject1.get("noTerminal") + "");
-            if (letra.equals(jsonObject1.get("noTerminal") + ""))
-            {
-
-                JSONObject variablesEstado = new JSONObject();
-                variablesEstado.put("noTerminales", letra);
-                variablesEstado.put("producciones", jsonObject1.get("producciones"));
-                variablesEstado.put("primeros", generarPrimeros(gramatica, inicial, letra));
-                System.out.println(primeros);
-                primeros = "";
+    public void crearEstado(JSONArray gramatica) {
+        estado += 1;
+        for (int i = 0; i < solucion.size(); i++) {
+            JSONObject jsonObject1 = (JSONObject) solucion.get(i);
+            if ((jsonObject1.get("estado")).equals(0)) {
+                solucionAuxiliar.add(jsonObject1);
             }
+        }
+        for (int i = 0; i < solucionAuxiliar.size(); i++) {
+            JSONObject jsonObject1 = (JSONObject) solucionAuxiliar.get(i);
+            String pr = jsonObject1.get("producciones") + "";
+
+            int lugarPunto = (jsonObject1.get("producciones") + "").indexOf(".");
+
+            String x = (jsonObject1.get("producciones") + "").replace(".", "");
+            x = x.substring(0, lugarPunto + 1) + "." + x.substring(lugarPunto + 1);
+            System.out.println(x);
+
+            if ((x.indexOf(".") + 1) < x.length()) {
+                solucion.add(generarLineaSolucion(estado, jsonObject1.get("noTerminal") + "", x,
+                        jsonObject1.get("primeros") + "", x.charAt(x.indexOf(".") + 1) + ""));
+                solucionAuxiliar.add(generarLineaSolucion(estado, jsonObject1.get("noTerminal") + "", x,
+                        jsonObject1.get("primeros") + "", x.charAt(x.indexOf(".") + 1) + ""));
+
+                if (Character.isUpperCase(x.charAt(x.indexOf(".") + 1))) {
+                    int bandera = 0;
+                    for (int j = 0; j < solucion.size(); j++) {
+                        JSONObject jsonObject2 = (JSONObject) solucion.get(j);
+                        System.out.println("entidades.GenerarAutomata.crearEstado()");
+                        System.out.println((jsonObject2.get("transicion") + ""));
+                        System.out.println((x.charAt(x.indexOf(".") + 1) + ""));
+                        System.out.println((jsonObject2.get("primeros") + ""));
+                        System.out.println((jsonObject1.get("primeros") + ""));
+                        if ((jsonObject2.get("transicion") + "").equals(x.charAt(x.indexOf(".") + 1) + "")
+                                && (jsonObject2.get("primeros") + "").equals(jsonObject1.get("primeros") + "")
+                                && (jsonObject2.get("noTerminal") + "").equals(x.charAt(x.indexOf(".") + 1) + "")) {
+                            bandera += 1;
+                        }
+                    }
+                    if (bandera == 0) {
+                        generarEstadosSiguientes(gramatica, (x.charAt(x.indexOf(".") + 1) + ""), (jsonObject1.get("noTerminal") + ""));
+                    }
+                }
+
+            } else {
+                solucion.add(generarLineaSolucion(estado, jsonObject1.get("noTerminal") + "", x,
+                        jsonObject1.get("primeros") + "", ""));
+
+            }
+            int contador = 0;
+            int tamanoActual = solucionAuxiliar.size();
+            for (int j = i + 1; j < tamanoActual; j++) {
+
+                JSONObject jsonObject2 = (JSONObject) solucionAuxiliar.get(j);
+                String pr2 = jsonObject2.get("producciones") + "";
+
+                int lugarPunto2 = (jsonObject2.get("producciones") + "").indexOf(".");
+
+                String x2 = (jsonObject2.get("producciones") + "").replace(".", "");
+                x2 = x2.substring(0, lugarPunto2 + 1) + "." + x2.substring(lugarPunto2 + 1);
+                System.out.println(x2);
+                System.out.println((jsonObject1.get("transicion") + ""));
+                System.out.println((jsonObject2.get("transicion")));
+                if ((jsonObject1.get("transicion") + "").equals(jsonObject2.get("transicion"))) {
+                    contador++;
+                    if ((x2.indexOf(".") + 1) < x2.length()) {
+                        solucion.add(generarLineaSolucion(estado, jsonObject2.get("noTerminal") + "", x2,
+                                jsonObject2.get("primeros") + "", x2.charAt(x2.indexOf(".") + 1) + ""));
+                        solucionAuxiliar.add(generarLineaSolucion(estado, jsonObject2.get("noTerminal") + "", x2,
+                                jsonObject2.get("primeros") + "", x2.charAt(x2.indexOf(".") + 1) + ""));
+
+                    } else {
+                        solucion.add(generarLineaSolucion(estado, jsonObject2.get("noTerminal") + "", x2,
+                                jsonObject2.get("primeros") + "", ""));
+                    }
+                }
+
+            }
+            estado = estado + 1;
+            i = i + contador;
+
+        }
+        System.out.println(solucion);
+    }
+
+    public JSONObject generarLineaSolucion(int nestado, String noTerminal, String producciones, String primeros, String transicion) {
+        JSONObject lineaSolucion = new JSONObject();
+        lineaSolucion.put("estado", nestado);
+        lineaSolucion.put("noTerminal", noTerminal);
+        lineaSolucion.put("producciones", producciones);
+        lineaSolucion.put("primeros", primeros);
+        lineaSolucion.put("transicion", transicion);
+        return lineaSolucion;
+    }
+
+    public void generarEstadosSiguientes(JSONArray gramatica, String letra, String inicial) {
+        for (int i = 0; i < gramatica.size(); i++) {
+            JSONObject jsonObject1 = (JSONObject) gramatica.get(i);
+            if ((jsonObject1.get("noTerminal") + "").equals(letra)) {
+                solucion.add(generarLineaSolucion(estado, letra, (jsonObject1.get("producciones") + ""),
+                        generarPrimerosC1(gramatica, inicial, letra),
+                        (jsonObject1.get("producciones") + "").charAt((jsonObject1.get("producciones") + "").indexOf(".") + 1) + ""));
+            }
+            primeros = "";
         }
     }
 
-    public String generarPrimeros(JSONArray gramatica, String inicial, String letra)
-    {
-
-        for (int i = 0; i < gramatica.size(); i++)
-        {
-            JSONObject jsonObject1 = (JSONObject) gramatica.get(i);
-            if (jsonObject1.get("noTerminal").equals(inicial))
-            {
+    public String generarPrimerosC1(JSONArray gramatica, String inicial, String letra) {
+        for (int i = 0; i < solucion.size(); i++) {
+            JSONObject jsonObject1 = (JSONObject) solucion.get(i);
+            if (jsonObject1.get("noTerminal").equals(inicial)) {
                 String produccion = jsonObject1.get("producciones") + "";
-                int posicionPunto = produccion.indexOf(".");
                 System.out.println();
-                if (produccion.length() == 2)
-                {
-                    for (int j = 0; j < this.solucion.size(); j++)
-                    {
-                        JSONObject jsonObject2 = (JSONObject) this.solucion.get(j);
-                        JSONArray jsonObject3 = (JSONArray) jsonObject2.get("gramaticaEstado");
-                        for (int m = 0; m < jsonObject3.size(); m++)
-                        {
-                            JSONObject jsonObject4 = (JSONObject) jsonObject3.get(0);
-                            if (inicial.equals(jsonObject4.get("noTerminal") + ""))
-                            {
-                                primeros += jsonObject4.get("primeros") + "";
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    produccion = produccion.replace("." + letra, "");
-                    if (Character.isLowerCase(produccion.charAt(1)))
-                    {
-                        for (int k = 0; k < produccion.length(); k++)
-                        {
-                            if (Character.isUpperCase(produccion.charAt(k)))
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                primeros += produccion.charAt(k);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        generarPrimeros(gramatica, produccion.charAt(1) + "", letra);
-                    }
-                }
+                if (produccion.contains("." + letra)) {
+                    int posPunto = produccion.indexOf(".");
+                    if (posPunto + 2 < produccion.length()) {
 
+                        if (Character.isUpperCase(produccion.charAt(posPunto + 2))) {
+                            for (int j = 0; j < gramatica.size(); j++) {
+                                JSONObject jsonObject2 = (JSONObject) gramatica.get(j);
+                                if ((jsonObject2.get("noTerminal") + "").equals(produccion.charAt(posPunto + 2) + "")) {
+                                    String var = jsonObject2.get("producciones") + "";
+                                    var = var.charAt(var.indexOf(".") + 1) + "";
+                                    generarPrimeros(gramatica, produccion.charAt(posPunto + 2) + "", var);
+                                }
+                            }
+
+                        } else {
+
+                            for (int k = 0; k < produccion.length(); k++) {
+                                if (Character.isUpperCase(produccion.charAt(k))) {
+                                    break;
+                                } else {
+                                    primeros += produccion.charAt(k);
+                                }
+                            }
+                        }
+                    } else {
+                        primeros="";
+                        for (int j = 0; j < this.solucion.size(); j++) {
+                            JSONObject jsonObject2 = (JSONObject) this.solucion.get(j);
+
+                            if (inicial.equals(jsonObject2.get("noTerminal") + "")) {
+                                primeros += jsonObject2.get("primeros") + "";
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
-        System.out.println (primeros);
-    return primeros ;
+        System.out.println(primeros);
+        String primeroArreglo = "";
+        for (int p = 0; p < primeros.length(); p++) {
+            primeroArreglo += primeros.charAt(p) + ",";
+        }
+        primeroArreglo = primeroArreglo.substring(0, primeroArreglo.length() - 1);
+        
+        System.out.println(primeroArreglo);
+        return primeroArreglo;
+    }
+
+    public void generarEstados(JSONArray gramatica, String letra, String inicial) {
+        int bandera = 0;
+        for (int i = 0; i < gramatica.size(); i++) {
+            JSONObject jsonObject1 = (JSONObject) gramatica.get(i);
+            if ((jsonObject1.get("noTerminal") + "").equals(letra)) {
+                for (int j = 0; j < solucion.size(); j++) {
+                    JSONObject jsonObject2 = (JSONObject) solucion.get(j);
+                    if ((jsonObject2.get("noTerminal") + "").equals(letra)&&
+                            (jsonObject2.get("producciones")+"").equals(jsonObject1.get("producciones"))) {
+                        bandera += 1;
+                    }
+                }
+                if (bandera == 0) {
+                    solucion.add(generarLineaSolucion(estado, letra, (jsonObject1.get("producciones") + ""),
+                            generarPrimeros(gramatica, inicial, letra),
+                            (jsonObject1.get("producciones") + "").charAt((jsonObject1.get("producciones") + "").indexOf(".") + 1) + ""));
+                }
+            }
+            primeros = "";
+        }
+    }
+
+    public String generarPrimeros(JSONArray gramatica, String inicial, String letra) {
+
+        for (int i = 0; i < gramatica.size(); i++) {
+            JSONObject jsonObject1 = (JSONObject) gramatica.get(i);
+            if (jsonObject1.get("noTerminal").equals(inicial)) {
+                String produccion = jsonObject1.get("producciones") + "";
+                System.out.println();
+                if (produccion.contains("." + letra)) {
+                    if (produccion.length() == 2) {
+                        if (Character.isUpperCase(produccion.charAt(produccion.indexOf(".") + 1))) {
+                            for (int j = 0; j < this.solucion.size(); j++) {
+                                JSONObject jsonObject2 = (JSONObject) this.solucion.get(j);
+
+                                if (inicial.equals(jsonObject2.get("noTerminal") + "")) {
+                                    primeros += jsonObject2.get("primeros") + "";
+                                    break;
+                                }
+                            }
+                        } else {
+                            produccion = produccion.replace(".", "");
+                            for (int k = 0; k < produccion.length(); k++) {
+                                if (Character.isUpperCase(produccion.charAt(k))) {
+                                    break;
+                                } else {
+                                    primeros += produccion.charAt(k);
+                                }
+                            }
+                        }
+
+                    } else {
+                        produccion = produccion.replace("." + letra, "");
+                        if (Character.isUpperCase(produccion.charAt(0))) {
+                            for (int j = 0; j < gramatica.size(); j++) {
+                                JSONObject jsonObject2 = (JSONObject) gramatica.get(j);
+                                if ((jsonObject2.get("noTerminal") + "").equals(produccion.charAt(0) + "")) {
+                                    String var = jsonObject2.get("producciones") + "";
+                                    var = var.charAt(var.indexOf(".") + 1) + "";
+                                    generarPrimeros(gramatica, produccion.charAt(0) + "", var);
+                                }
+                            }
+
+                        } else {
+
+                            for (int k = 0; k < produccion.length(); k++) {
+                                if (Character.isUpperCase(produccion.charAt(k))) {
+                                    break;
+                                } else {
+                                    primeros += produccion.charAt(k);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println(primeros);
+        String primeroArreglo = "";
+        for (int p = 0; p < primeros.length(); p++) {
+            primeroArreglo += primeros.charAt(p) + ",";
+        }
+        primeroArreglo = primeroArreglo.substring(0, primeroArreglo.length() - 1);
+        System.out.println(primeroArreglo);
+        return primeroArreglo;
     }
     
+
 }

@@ -1,0 +1,10 @@
+{
+    "gramatica":[
+        {"noTerminal": "E","producciones":"E+n"},
+        {"noTerminal": "E","producciones":"L)"},
+        {"noTerminal": "L","producciones":"ymL"}
+    ]
+    
+}
+
+
