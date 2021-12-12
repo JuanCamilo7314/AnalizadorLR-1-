@@ -8,7 +8,6 @@ import entidades.RutaArchivo;
 import java.io.File;
 import org.json.simple.JSONArray;
 
-
 /**
  * clase encargada de ejecutar todos las acciones del programa.
  *
@@ -22,7 +21,6 @@ public class ControlSistema {
     private RutaArchivo rutaArchivo;
     private ExtenderGramatica extenderGramatica;
     private GenerarAutomata generarAutomara;
-   
 
     public ControlSistema() {
         this.gramatica = new Gramatica();
@@ -42,24 +40,28 @@ public class ControlSistema {
     public JSONArray mostrarGramatica(File archivo) throws ControlException {
         return this.gramatica.cargarArchivo(archivo);
     }
-    
-    public File buscarArchivo(){
+
+    public File buscarArchivo() {
         File archivo = this.rutaArchivo.buscarArchivo();
         return archivo;
     }
-    
-    public JSONArray leerGramatica(JSONArray gramatica){
+
+    public String buscarAceptar(String noT, String producciones) {
+        return gramatica.buscarR(noT, producciones);
+    }
+
+    public JSONArray leerGramatica(JSONArray gramatica) {
         
         return extenderGramatica.extender(gramatica);
     }
-    
-    public JSONArray generarx(JSONArray gramatica){
+
+    public JSONArray generarx(JSONArray gramatica) {
         return generarAutomara.obtenerAutomata(gramatica);
     }
 
     /**
-     * Metodo encargado de transformar la gramatica cuando esta tiene NO Terminales
-     * con mas de 2 letras (AB -> adAB) por (X->abX)
+     * Metodo encargado de transformar la gramatica cuando esta tiene NO
+     * Terminales con mas de 2 letras (AB -> adAB) por (X->abX)
      *
      * @param archivo hace referencia al archivo seleccionado.
      * @return JSONArray de la gramatica seleccionada y transformada.

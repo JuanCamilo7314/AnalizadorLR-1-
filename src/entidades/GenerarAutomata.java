@@ -29,7 +29,6 @@ public class GenerarAutomata {
             }
         }
         crearEstado(gramatica);
-        System.out.println(solucion);
         return solucion;
     }
 
@@ -49,7 +48,6 @@ public class GenerarAutomata {
 
             String x = (jsonObject1.get("producciones") + "").replace(".", "");
             x = x.substring(0, lugarPunto + 1) + "." + x.substring(lugarPunto + 1);
-            System.out.println(x);
 
             if ((x.indexOf(".") + 1) < x.length()) {
                 solucion.add(generarLineaSolucion(estado, jsonObject1.get("noTerminal") + "", x,
@@ -61,11 +59,6 @@ public class GenerarAutomata {
                     int bandera = 0;
                     for (int j = 0; j < solucion.size(); j++) {
                         JSONObject jsonObject2 = (JSONObject) solucion.get(j);
-                        System.out.println("entidades.GenerarAutomata.crearEstado()");
-                        System.out.println((jsonObject2.get("transicion") + ""));
-                        System.out.println((x.charAt(x.indexOf(".") + 1) + ""));
-                        System.out.println((jsonObject2.get("primeros") + ""));
-                        System.out.println((jsonObject1.get("primeros") + ""));
                         if ((jsonObject2.get("transicion") + "").equals(x.charAt(x.indexOf(".") + 1) + "")
                                 && (jsonObject2.get("primeros") + "").equals(jsonObject1.get("primeros") + "")
                                 && (jsonObject2.get("noTerminal") + "").equals(x.charAt(x.indexOf(".") + 1) + "")) {
@@ -93,11 +86,13 @@ public class GenerarAutomata {
 
                 String x2 = (jsonObject2.get("producciones") + "").replace(".", "");
                 x2 = x2.substring(0, lugarPunto2 + 1) + "." + x2.substring(lugarPunto2 + 1);
-                System.out.println(x2);
-                System.out.println((jsonObject1.get("transicion") + ""));
-                System.out.println((jsonObject2.get("transicion")));
-                if ((jsonObject1.get("transicion") + "").equals(jsonObject2.get("transicion"))) {
-                    contador++;
+
+                if ((jsonObject1.get("transicion") + "").equals(jsonObject2.get("transicion"))
+                        && (jsonObject1.get("primeros") + "").equals(jsonObject2.get("primeros") + "")) {
+                    if (i + 1 == j) {
+                        contador++;
+                    }
+
                     if ((x2.indexOf(".") + 1) < x2.length()) {
                         solucion.add(generarLineaSolucion(estado, jsonObject2.get("noTerminal") + "", x2,
                                 jsonObject2.get("primeros") + "", x2.charAt(x2.indexOf(".") + 1) + ""));
@@ -115,7 +110,6 @@ public class GenerarAutomata {
             i = i + contador;
 
         }
-        System.out.println(solucion);
     }
 
     public JSONObject generarLineaSolucion(int nestado, String noTerminal, String producciones, String primeros, String transicion) {
@@ -132,6 +126,9 @@ public class GenerarAutomata {
         for (int i = 0; i < gramatica.size(); i++) {
             JSONObject jsonObject1 = (JSONObject) gramatica.get(i);
             if ((jsonObject1.get("noTerminal") + "").equals(letra)) {
+                solucionAuxiliar.add(generarLineaSolucion(estado, letra, (jsonObject1.get("producciones") + ""),
+                        generarPrimerosC1(gramatica, inicial, letra),
+                        (jsonObject1.get("producciones") + "").charAt((jsonObject1.get("producciones") + "").indexOf(".") + 1) + ""));
                 solucion.add(generarLineaSolucion(estado, letra, (jsonObject1.get("producciones") + ""),
                         generarPrimerosC1(gramatica, inicial, letra),
                         (jsonObject1.get("producciones") + "").charAt((jsonObject1.get("producciones") + "").indexOf(".") + 1) + ""));
@@ -145,7 +142,6 @@ public class GenerarAutomata {
             JSONObject jsonObject1 = (JSONObject) solucion.get(i);
             if (jsonObject1.get("noTerminal").equals(inicial)) {
                 String produccion = jsonObject1.get("producciones") + "";
-                System.out.println();
                 if (produccion.contains("." + letra)) {
                     int posPunto = produccion.indexOf(".");
                     if (posPunto + 2 < produccion.length()) {
@@ -171,7 +167,7 @@ public class GenerarAutomata {
                             }
                         }
                     } else {
-                        primeros="";
+                        primeros = "";
                         for (int j = 0; j < this.solucion.size(); j++) {
                             JSONObject jsonObject2 = (JSONObject) this.solucion.get(j);
 
@@ -184,14 +180,12 @@ public class GenerarAutomata {
                 }
             }
         }
-        System.out.println(primeros);
         String primeroArreglo = "";
         for (int p = 0; p < primeros.length(); p++) {
             primeroArreglo += primeros.charAt(p) + ",";
         }
         primeroArreglo = primeroArreglo.substring(0, primeroArreglo.length() - 1);
-        
-        System.out.println(primeroArreglo);
+
         return primeroArreglo;
     }
 
@@ -202,8 +196,8 @@ public class GenerarAutomata {
             if ((jsonObject1.get("noTerminal") + "").equals(letra)) {
                 for (int j = 0; j < solucion.size(); j++) {
                     JSONObject jsonObject2 = (JSONObject) solucion.get(j);
-                    if ((jsonObject2.get("noTerminal") + "").equals(letra)&&
-                            (jsonObject2.get("producciones")+"").equals(jsonObject1.get("producciones"))) {
+                    if ((jsonObject2.get("noTerminal") + "").equals(letra)
+                            && (jsonObject2.get("producciones") + "").equals(jsonObject1.get("producciones"))) {
                         bandera += 1;
                     }
                 }
@@ -223,7 +217,6 @@ public class GenerarAutomata {
             JSONObject jsonObject1 = (JSONObject) gramatica.get(i);
             if (jsonObject1.get("noTerminal").equals(inicial)) {
                 String produccion = jsonObject1.get("producciones") + "";
-                System.out.println();
                 if (produccion.contains("." + letra)) {
                     if (produccion.length() == 2) {
                         if (Character.isUpperCase(produccion.charAt(produccion.indexOf(".") + 1))) {
@@ -272,15 +265,12 @@ public class GenerarAutomata {
                 }
             }
         }
-        System.out.println(primeros);
         String primeroArreglo = "";
         for (int p = 0; p < primeros.length(); p++) {
             primeroArreglo += primeros.charAt(p) + ",";
         }
         primeroArreglo = primeroArreglo.substring(0, primeroArreglo.length() - 1);
-        System.out.println(primeroArreglo);
         return primeroArreglo;
     }
-    
 
 }

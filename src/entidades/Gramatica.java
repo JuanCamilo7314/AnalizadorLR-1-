@@ -75,8 +75,8 @@ public class Gramatica {
                 JSONObject jsonObject1 = (JSONObject) array.get(i);
                 
                 this.setGramatica(array);
-
             }
+            this.limpiarLambda();
         } catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(null, "El archivo no existe");
         } catch (IOException ex) {
@@ -84,6 +84,29 @@ public class Gramatica {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+    
+    public String buscarR(String noT,String producciones){
+        String r = "";
+        for (int i = 0; i < gramatica.size(); i++) {
+            JSONObject jsonGramatica = (JSONObject) gramatica.get(i);
+            if ((jsonGramatica.get("noTerminal")+"").equals(noT)&&
+                    (((jsonGramatica.get("producciones")+"").replace(".","")).equals(producciones.replace(".","")))) {
+                r="R"+i;
+                break;
+            }
+        }
+        return r;   
+    }
+    
+    public void limpiarLambda(){
+        JSONArray gramaticaSinL = new JSONArray();
+        for (int i = 0; i < gramatica.size(); i++) {
+            JSONObject jsonGramatica = (JSONObject) gramatica.get(i);
+            jsonGramatica.put("producciones", (jsonGramatica.get("producciones")+"").replace("λ",""));
+            gramaticaSinL.add(jsonGramatica);
+        }
+        setGramatica(gramaticaSinL);
     }
 
     public JSONArray getGramatica() {
